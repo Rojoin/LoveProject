@@ -1,5 +1,5 @@
 
-GameStates = {Menu = 0,Game = 1,HowTo = 2, Exit = 3}
+GameStates = {Menu = 0,Game = 1,HowTo = 2, Exit = 3, Lose = 4}
 
 
 Ball = {}
@@ -7,17 +7,15 @@ Rectangle ={}
 Flappy ={}
 ButtonMenuHow = {}
 ButtonMenuPlay ={}
+ButtonMenuExit ={}
 Circle = {}
+ButtonMenuBack ={}
 
-Rectangle.x= 0
-Rectangle.y= 0
-Rectangle.width = 100
-Rectangle.height = 400
 
 Flappy.x= 100
 Flappy.y= 400
-Flappy.width = 55
-Flappy.height = 45
+Flappy.width = 45
+Flappy.height = 55
 Flappy.gravity = 256
 Flappy.isAlive = true
 Flappy.score = 0
@@ -51,42 +49,66 @@ recBottom2.height=  450
 recBottom2.color = {0,0,1}
 
 
-ButtonMenuHow.width = 50
+ButtonMenuHow.width = 80
 ButtonMenuHow.x= 400 - ButtonMenuHow.width/2
 ButtonMenuHow.y= 400
-ButtonMenuHow.height = 30
+ButtonMenuHow.height = 50
 ButtonMenuHow.color = {0,0,0}
 
-ButtonMenuPlay.width = 50
+ButtonMenuPlay.width = 80
 ButtonMenuPlay.x= 400 - ButtonMenuPlay.width/2
-ButtonMenuPlay.y= 200
-ButtonMenuPlay.height = 30
+ButtonMenuPlay.y= 300
+ButtonMenuPlay.height = 50
 ButtonMenuPlay.color ={0,0,0}
+
+ButtonMenuExit.width = 80
+ButtonMenuExit.x= 400 - ButtonMenuExit.width/2
+ButtonMenuExit.y= 500
+ButtonMenuExit.height = 50
+ButtonMenuExit.color ={0,0,0}
+
+ButtonMenuBack.width = 80
+ButtonMenuBack.x= 50- ButtonMenuBack.width/2
+ButtonMenuBack.y= 550
+ButtonMenuBack.height = 50
+ButtonMenuBack.color ={0,0,0}
+
+
 
 Circle.x=0
 Circle.y=0
 Circle.radius=50
 state = GameStates.Menu
-function love.load()
-	
-end
+
 function love.update()
 
-	
 
-if state == GameStates.Exit then
+
+if state == GameStates.Menu then
+	menuLogic()
+elseif state == GameStates.Game then
+	GameLogic()
+elseif state == GameStates.HowTo then
+	HowToLogic()
+elseif state == GameStates.Exit then
 love.event.quit()
 end
 
 
- menuLogic()
 
-FlappyMovement()
-
-logicPipe()
 
 end
 
+function HowToLogic()
+	if checkRecMouseCollision(ButtonMenuBack.x ,ButtonMenuBack.y ,ButtonMenuBack.width, ButtonMenuBack.height) then
+		ButtonMenuBack.color = {1,0,0}
+		if  love.mouse.isDown(1) then
+			state = GameStates.Menu
+		end
+	else
+		ButtonMenuBack.color = {0,0,0}
+	end
+end
 
 function GameLogic()
 	
@@ -111,23 +133,30 @@ if Flappy.isAlive then
 	end
 	
 else
-	resetGame()
+	state = GameStates.Lose
  end
 
 end
 
 function love.keypressed(key)
 	
-	 if  key == "space" then
+	 if  key == "space" and state == GameStates.Game then
 		Flappy.gravity = Flappy.gravity*-1
+	 end
+	 if  key == "escape" then
+		state = GameStates.Menu
+	 end
+	 if  key == "r" and state == GameStates.Lose then
+		resetGame()
+		state = GameStates.Game
 	 end
 end
 function resetGame()
 
 	Flappy.x= 100
 	Flappy.y= 400
-	Flappy.width = 55
-	Flappy.height = 45
+	Flappy.width = 45
+	Flappy.height = 55
 	Flappy.gravity = 256
 	Flappy.isAlive = true
 	Flappy.score = 0
@@ -149,17 +178,20 @@ function resetGame()
     recBottom1.height= 450
     recBottom1.color = {0,0,1}
 
-recBottom2.x=       400
-recBottom2.y=      -100
-recBottom2.width=   100
-recBottom2.height=  450
-recBottom2.color = {0,0,1}
+    recBottom2.x=       400
+    recBottom2.y=      -100
+    recBottom2.width=   100
+    recBottom2.height=  450
+    recBottom2.color = {0,0,1}
 
 
 end
 function love.load()
 resetGame()
-
+rules =love.graphics.newImage("/resources/menuFlappy.png")
+flappy=love.graphics.newImage("/resources/Crab.png")
+endGame=love.graphics.newImage("/resources/endFlappy.png")
+tittle=love.graphics.newImage("/resources/tittleFlappy.png")
 end
 function love.draw()
 	love.graphics.setBackgroundColor(1,1,0.5)
@@ -222,32 +254,58 @@ function drawPipe()
 	love.graphics.rectangle("fill", recBottom1.x, recBottom1.y, recBottom1.width,recBottom1.height)
 	love.graphics.setColor(recBottom2.color)
 	love.graphics.rectangle("fill", recBottom2.x, recBottom2.y, recBottom2.width,recBottom2.height)
-	love.graphics.setColor(1,1,1)
-	love.graphics.rectangle("fill", 0, 0, 200,80)
 	love.graphics.setColor(0,0,0)
 	love.graphics.print('Score:' .. math.floor(Flappy.score), 0, 0)
 end
 
+function drawEndGame()
+
+	love.graphics.setColor(1,1,1) 
+	love.graphics.draw(endGame,185,100,0)
+	love.graphics.setColor(0,0,0)
+	love.graphics.print('Score:' .. math.floor(Flappy.score), 325, 200,0,5,5)
+end
+
+
+
 function drawMenu()
 
     if state == GameStates.Menu then
-		love.graphics.print('Menu', 400, 300,0,2)
+		love.graphics.setColor(1,1,1)
+		love.graphics.draw(tittle,200, 50)
 		love.graphics.setColor(ButtonMenuPlay.color)
-		love.graphics.rectangle("fill", ButtonMenuPlay.x, ButtonMenuPlay.y, ButtonMenuPlay.width,ButtonMenuPlay.height );
+		love.graphics.rectangle("fill", ButtonMenuPlay.x, ButtonMenuPlay.y, ButtonMenuPlay.width,ButtonMenuPlay.height);
+		love.graphics.setColor(1,1,1)
+		love.graphics.print('    Play', ButtonMenuPlay.x, ButtonMenuPlay.y+ButtonMenuPlay.height/2)
 		love.graphics.setColor(ButtonMenuHow.color)
 		love.graphics.rectangle("fill", ButtonMenuHow.x, ButtonMenuHow.y, ButtonMenuHow.width,ButtonMenuHow.height );
+		love.graphics.setColor(1,1,1)
+		love.graphics.print('    HowTo', ButtonMenuHow.x, ButtonMenuHow.y+ButtonMenuHow.height/2)
+		love.graphics.setColor(ButtonMenuExit.color)
+		love.graphics.rectangle("fill", ButtonMenuExit.x, ButtonMenuExit.y, ButtonMenuExit.width,ButtonMenuExit.height );
+		love.graphics.setColor(1,1,1)
+		love.graphics.print('    Exit', ButtonMenuExit.x, ButtonMenuExit.y+ButtonMenuExit.height/2)
 	elseif state == GameStates.Game then
-		love.graphics.setColor(1, 181/255,22/255)
-		love.graphics.rectangle("fill", Flappy.x, Flappy.y, Flappy.width,Flappy.height )
-		love.graphics.setColor(1,1,1) 
-		love.graphics.circle("fill",love.mouse.getX(),love.mouse.getY(),5)
-		drawPipe()
 
+	
+		love.graphics.setColor(1,1,1)
+		love.graphics.draw(flappy,Flappy.x, Flappy.y)
+		drawPipe()
+		
 	elseif state == GameStates.HowTo then
-	love.graphics.print('Rules!', 400, 300)
+		love.graphics.setColor(1,1,1) 
+		love.graphics.draw(rules,185,100,0)
+		love.graphics.setColor(ButtonMenuBack.color)
+		love.graphics.rectangle("fill", ButtonMenuBack.x, ButtonMenuBack.y, ButtonMenuBack.width,ButtonMenuBack.height );
+		love.graphics.setColor(1,1,1)
+		love.graphics.print('    Back', ButtonMenuBack.x, ButtonMenuBack.y+ButtonMenuBack.height/2)
+	elseif state == GameStates.Lose then
+		drawEndGame()
 	elseif state == GameStates.exit then
-	love.graphics.print('ByeBye!', 400, 300)
+		love.graphics.print('ByeBye!', 400, 300)
 	end
+	love.graphics.setColor(0,0,0) 
+love.graphics.print('Game Made by Ignacio "Rojoin " Arrastua', 550, 585)
 end
 
 function menuLogic()
@@ -268,6 +326,14 @@ function menuLogic()
 		end
 	else
 		ButtonMenuHow.color = {0,0,0}
+	end
+    if checkRecMouseCollision(ButtonMenuExit.x,ButtonMenuExit.y ,ButtonMenuExit.width, ButtonMenuExit.height) then
+		ButtonMenuExit.color = {1,0,0}
+		if  love.mouse.isDown(1) then
+				state = GameStates.Exit
+		end
+	else
+		ButtonMenuExit.color = {0,0,0}
 	end
 	
 
