@@ -79,6 +79,7 @@ Circle.x=0
 Circle.y=0
 Circle.radius=50
 state = GameStates.Menu
+love.window.setTitle( "Crabby Adventures")
 
 function love.update()
 
