@@ -90,6 +90,8 @@ elseif state == GameStates.Game then
 	GameLogic()
 elseif state == GameStates.HowTo then
 	HowToLogic()
+elseif state == GameStates.Lose then
+	EndLogic()
 elseif state == GameStates.Exit then
 love.event.quit()
 end
@@ -98,7 +100,16 @@ end
 
 
 end
-
+function EndLogic()
+	if checkRecMouseCollision(ButtonMenuBack.x ,ButtonMenuBack.y ,ButtonMenuBack.width, ButtonMenuBack.height) then
+		ButtonMenuBack.color = {1,0,0}
+		if  love.mouse.isDown(1) then
+			state = GameStates.Menu
+		end
+	else
+		ButtonMenuBack.color = {0,0,0}
+	end
+end
 function HowToLogic()
 	if checkRecMouseCollision(ButtonMenuBack.x ,ButtonMenuBack.y ,ButtonMenuBack.width, ButtonMenuBack.height) then
 		ButtonMenuBack.color = {1,0,0}
@@ -264,6 +275,11 @@ function drawEndGame()
 	love.graphics.draw(endGame,185,100,0)
 	love.graphics.setColor(0,0,0)
 	love.graphics.print('Score:' .. math.floor(Flappy.score), 325, 200,0,5,5)
+	love.graphics.setColor(ButtonMenuBack.color)
+		love.graphics.rectangle("fill", ButtonMenuBack.x, ButtonMenuBack.y, ButtonMenuBack.width,ButtonMenuBack.height );
+	love.graphics.setColor(1,1,1)
+	love.graphics.print('    Back', ButtonMenuBack.x, ButtonMenuBack.y+ButtonMenuBack.height/2)
+
 end
 
 
@@ -301,6 +317,8 @@ function drawMenu()
 		love.graphics.print('    Back', ButtonMenuBack.x, ButtonMenuBack.y+ButtonMenuBack.height/2)
 	elseif state == GameStates.Lose then
 		drawEndGame()
+	
+		
 	elseif state == GameStates.exit then
 		love.graphics.print('ByeBye!', 400, 300)
 	end
